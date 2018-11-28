@@ -172,6 +172,9 @@ help you find a different (better?) way to do it.
 * Using built-in functions
 * Using built-in classes (objects) and methods: Individual and Address classes
 * Github, Google Drive or OneDrive integration
+
+---
+# Future topics (continued)
 * Gathering multiple items into a group (lists, dictionaries and sets)
 * Displaying a group in a document (control structures)
 * Generic object, special variable `i`
