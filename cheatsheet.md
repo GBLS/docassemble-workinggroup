@@ -1,10 +1,18 @@
 # Docassemble Cheat Sheet
 ## KEY CONCEPTS:
+
+The interview asks questions. You can use the interview to generate a document from scratch, or to fill in a Docx or PDF template
+file.
+
 Fields (variables) store information. Fields can have multiple datatypes, such as numbers, dates, Booleans, or regular text.
 
 Functions can transform fields. You can do basic operations on fields as well, such as x = a+b. capitalize(variable_name)
 
 If: else: statements are the building block of logic.
+
+Each block in your interview (i.e., each dialog screen shown the user) needs to separated with `---` on its own line.
+
+Spacing and indentation is important.
 
 ## GETTING INFORMATION FROM THE USER
 Two types of questions: basic question blocks, and the fields statement.
