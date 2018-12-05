@@ -42,7 +42,7 @@ Documents from scratch work the same way as questions.
 
 ### Filling a Docx template
 Uses `Jinja2` syntax
-Adding a variable: `{{ variable_name }}`
+Adding a variable: {% raw %}`{{ variable_name }}`{% endraw %}
 
 Logic: `{% if variable_name %}` `{% endif %}`
 
