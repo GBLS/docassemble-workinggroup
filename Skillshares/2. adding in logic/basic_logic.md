@@ -117,6 +117,6 @@ attachment:
 Here are some exercises you can try on your own.
 
 * Create an interview that uses the basic [acknowledgement button](https://docassemble.org/docs/questions.html#tocAnchor-1-5-3) as an intro screen.
-* Use `datatype:yesno` together with a `fields` statement, and change the text displayed to the user depending on their answer.
+* Use [`datatype:yesno`](https://docassemble.org/docs/fields.html#fields%20yesno) together with a `fields` statement, and change the text displayed to the user depending on their answer.
 * Create an interview that uses [checkboxes](https://docassemble.org/docs/fields.html#fields%20checkboxes) and display different text to the user
   depending on whether any items in the checklist where selected.
