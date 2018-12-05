@@ -1,0 +1,31 @@
+---
+question: Information about you
+fields:
+    - Your name: user_name
+    - Your favorite number: user_number
+      datatype: integer
+---
+code: |
+    if user_number == 42:
+        text = "You know the meaning of life, the universe and everything!"
+    else:
+        text = "You still have time to learn the meaning of life."
+---
+mandatory: True
+question: Your download is ready.
+
+attachment:
+    - name: download
+      filename: my_download
+      content: |
+        Hello, ${user_name}.
+
+        Your favorite number is ${user_number}. ${text}
+
+        % if user_number < 100:
+        You don't like very large numbers!
+        % elif user_number < 1000:
+        Your favorite number is moderately big.
+        % else:
+        That's a big number!
+        % endif
