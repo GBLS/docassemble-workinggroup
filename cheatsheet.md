@@ -46,7 +46,7 @@ Adding a variable: {% raw %}`{{ variable_name }}`{% endraw %}
 
 Logic: `{% if variable_name %}` `{% endif %}`
 
-Special version that doesn't leave empty lines: `{%p if variable_name %}` on its own line followed by  `{%p endif %}`
+Special version that doesn't leave empty lines: {% raw %}`{%p if variable_name %}` {% endraw %} on its own line followed by  {% raw %}`{%p endif %}`{% endraw %}
 
 ## Groups
 Lists have an order. This is the default kind of group you should use.
