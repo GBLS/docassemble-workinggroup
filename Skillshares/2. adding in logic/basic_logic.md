@@ -1,22 +1,22 @@
 # Docassemble Logic
 
-Docassemble supports adding logic with all of the power of Python, 
-a fully-fledged programming language. When you are filling PDFs, creating documents 
+Docassemble supports adding logic with all of the power of Python,
+a fully-fledged programming language. When you are filling PDFs, creating documents
 from scratch or using logic in an interview question, you will also make
 use of very similar [`Mako`](https://docassemble.org/docs/markup.html#mako) tags, and when assembling a Docx template file,
 you will use the very similar [`Jinja2`](https://docassemble.org/docs/documents.html#docx%20template%20file) tags to implement logic.
 
 Most of the time the logic that you use will be pretty basic:
-evaluating a True or False statement, and deciding what text to 
+evaluating a True or False statement, and deciding what text to
 hide or display in a document, or what follow-up questions to ask.
 
-Here's an example of a few True or False statements translated into 
+Here's an example of a few True or False statements translated into
 Docassemble's language:
 * `number1 > number2` evaluates to True if `number1` is larger than `number2`, and otherwise evaluates to False
 * `saw_disclaimer` evaluates to True if we have a statement like `field: saw_disclaimer` on an interview
-   screen with only a `Continue` button
-* `claims.any_true()` evaluates to True if we have a checklist and the user has selected at least one item in the checklist.
-* `user_is_parent` evaluates to True if the user checked a `datatype: yesno` field named `user_is_parent` in an interview
+   screen with only a [`Continue`](https://docassemble.org/docs/questions.html#tocAnchor-1-5-3) button
+* `claims.any_true()` evaluates to True if we have a checklist named `claims` and the user has selected at least one item in the [checklist](https://docassemble.org/docs/fields.html#fields%20checkboxes).
+* `user_is_parent` evaluates to True if the user checked a [`datatype: yesno`](https://docassemble.org/docs/fields.html#fields%20yesno) field named `user_is_parent` in an interview
 
 ## Using True/False values in your Interview or Template
 
@@ -71,7 +71,7 @@ if value > 0 and value < 10:
     action 1
 elif value >= 10 and value < 100
     action 2
-else: 
+else:
     default action
 ```
 
@@ -111,3 +111,12 @@ attachment:
         That's a big number!
         % endif
 ```
+
+### Stretch goals
+
+Here are some exercises you can try on your own.
+
+* Create an interview that uses the basic [acknowledgement button](https://docassemble.org/docs/questions.html#tocAnchor-1-5-3) as an intro screen.
+* Use `datatype:yesno` together with a `fields` statement, and change the text displayed to the user depending on their answer.
+* Create an interview that uses [checkboxes](https://docassemble.org/docs/fields.html#fields%20checkboxes) and display different text to the user
+  depending on whether any items in the checklist where selected.
