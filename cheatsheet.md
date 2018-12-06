@@ -1,5 +1,5 @@
 # Docassemble Cheat Sheet
-## KEY CONCEPTS:
+## Key Concepts
 
 The `interview` asks questions. You can use the interview to generate a document from scratch, or to fill in a Docx or PDF `template`
 file.
@@ -14,7 +14,7 @@ Each `block` in your interview (i.e., each dialog screen shown the user) needs t
 
 Spacing and indentation is important.
 
-## GETTING INFORMATION FROM THE USER
+## Getting Information From the User
 Two types of questions: basic question blocks, and the `fields` statement.
 Basic questions only allow a few types of question structures. You can always use the fields statement instead of a basic question block.
 
@@ -22,7 +22,16 @@ A page that doesn't do anything (but you want to display to the user) uses a fie
 
 In the documentation, look at both **Setting Variables** and **Question Blocks** to learn how to set a field with a question.
 
-## SYNTAX TO REMEMBER
+## How Docassemble Asks Questions
+Docassemble asks a question **if and only if** it is marked `mandatory: True` _or it is needed to fill-in any `fields`_ used in the
+mandatory block (for example, any fields used in a document you generate or a final summary screen).
+
+Docassemble will use the _last_ question that fills-in the field in your interview file. You can [override](https://docassemble.org/docs/logic.html#order) this on a question-by-question basis using [`if`](https://docassemble.org/docs/modifiers.html#if)
+
+Good practice is to have only one mandatory block in your file. For longer interviews, use a `code` block to [control question order](https://docassemble.org/docs/logic.html#order).
+It is only necessary to mention the variable in the code block for Docassemble to seek out its definition.
+
+## Syntax to Remember
 ### Logic in your interview
 Code blocks use Python. 
 * Assignments: `=` 
