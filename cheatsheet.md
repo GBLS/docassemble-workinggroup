@@ -51,11 +51,11 @@ Documents from scratch work the same way as questions.
 
 ### Filling a Docx template
 Uses `Jinja2` syntax
-Adding a variable: {% raw %}`{{ variable_name }}`{% endraw %}
+Adding a variable: `{{ variable_name }}`
 
 Logic: `{% if variable_name %}` `{% endif %}`
 
-Special version that doesn't leave empty lines: {% raw %}`{%p if variable_name %}` {% endraw %} on its own line followed by  {% raw %}`{%p endif %}`{% endraw %}
+Special version that doesn't leave empty lines:`{%p if variable_name %}`  on its own line followed by `{%p endif %}`
 
 ## Groups
 Lists have an order. This is the default kind of group you should use.
