@@ -28,7 +28,7 @@ want the computer to _do_ if the test evaluates to True.
 
 Here's an example of what this could look like in a Python `code` block:
 ```
-if [logical test or Boolean value] :
+if x > 1 :
     action
 ```
 We just use the word `if` to tell the computer that what follows is going to be a test.
@@ -40,15 +40,33 @@ include variables if you want. Here's an example of using logic that would work 
 or document from scratch, using the `Mako` tag syntax.
 
 ```
-% if [logical test or Boolean]:
+% if my_var:
 Here's the optional text. It could have an optional ${variable} too.
 % endif
 ```
+
 There are a few minor differences in this `if` statement. Notice that we began the line with a `%` symbol.
 This tells Docassemble/Mako that what follows is going to be an instruction instead of just normal text
 that we want to display to the user. The second difference is that we did not need to indent the text that follows.
 Finally, inside a `question` or document from scratch, we need to mark the end of the optional text with
 the keyword `endif`.
+
+The syntax is similar for a Docx/Word document.
+
+```
+{% if test == 'My text' %}
+Optional text. It can have an optional {{ variable }}.
+{% endif %}
+```
+
+The above example leaves in an empty line. There is a special syntax to leave out the empty line in a Word document,
+just adding a `p` after the % symbol. 
+
+```
+{%p if x >= 2 %}
+Optional text. It can have an optional {{ variable }}.
+{%p endif %}
+```
 
 There are some special shortcuts to be aware of. What happens if you have some text that you want to display
 or action that you want to take that is different if the variable is False? You could simply reverse the test.
