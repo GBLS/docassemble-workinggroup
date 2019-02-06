@@ -1,0 +1,20 @@
+--- 
+modules:
+  - docassemble.base.core
+  - docassemble.base.util
+---
+objects:
+  - children: DAList.using(object_type=Individual, ask_number=True)
+---
+question: |
+  How many children do you have?
+fields:
+  - Number: children.target_number
+    datatype: integer
+---
+question: |
+  Tell me about the ${ordinal(i) child}
+fields:
+  - First name: children[i].name.first
+	- Last: children[i].name.last
+  
