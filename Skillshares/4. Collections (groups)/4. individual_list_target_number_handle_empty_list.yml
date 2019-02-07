@@ -1,0 +1,34 @@
+--- 
+modules:
+  - docassemble.base.core
+  - docassemble.base.util
+---
+objects:
+  - children: DAList.using(object_type=Individual, ask_number=True)
+---
+question: |
+  How many children do you have?
+fields:
+  - Do you have any kids?: children.there_are_any
+    datatype: yesnoradio
+  - How many?: children.target_number
+    datatype: integer
+    show if: children.there_are_any
+---
+question: |
+  What is the ${ordinal(i)} child's name
+fields:
+  - First: children[i].name.first
+  - Middle: children[i].name.middle
+    required: False
+  - Last: children[i].name.last
+---
+mandatory: True
+question: |
+  Children
+subquestion: |
+  % if children.number() > 0:
+  ${children}
+  % else:
+  You have no children
+  % endif

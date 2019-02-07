@@ -1,0 +1,25 @@
+---
+modules:
+  - docassemble.base.util
+---
+objects:
+  - client: Individual
+---
+mandatory: True
+question: |
+	About the client
+fields:
+	- First name: client.name.first
+	- Last: client.name.last
+	- Street address: client.address.address
+	- Unit:	client.address.unit
+	  required: False
+	- City: client.address.city
+	- State: client.address.state
+	- Zip: client.address.zip
+---
+mandatory: True
+question: |
+  The info
+subquestion: |
+  ${client} has the address ${client.address.on_one_line()}

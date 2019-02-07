@@ -1,0 +1,28 @@
+--- 
+modules:
+  - docassemble.base.core
+  - docassemble.base.util
+---
+objects:
+  - children: DAList.using(object_type=Individual)
+---
+question: |
+  Do you have any kids?
+yesno: children.there_are_any
+---
+question: |
+  Do you have another child?
+yesno: children.there_is_another
+---
+question: |
+  Child ${i}'s name
+fields:
+  - First: children[i].name.first
+  - Middle: children[i].name.middle
+  - Last: children[i].name.last
+---
+mandatory: True
+question: |
+  Children
+subquestion: |
+  ${children}

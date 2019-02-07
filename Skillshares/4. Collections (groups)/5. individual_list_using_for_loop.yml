@@ -1,0 +1,66 @@
+--- 
+modules:
+  - docassemble.base.core
+  - docassemble.base.util
+---
+comment: |
+  the .using() method lets you assign values to the attributes of an object at the same time
+  you initialize it. Here we are telling Docassemble our list will contain Individuals,
+  and that we'll be using the list style where we need to know the number of items up front
+objects:
+  - children: DAList.using(object_type=Individual, ask_number=True)
+---
+comment: |
+  Here we are using the "there_are_any" attribute for something other than its normal purpose.
+  We don't need to define it. We're just using it to make the follow-up question more natural.
+
+  "show if" hides the question unless the variable that follows ":" is True.
+  There's a variation that lets you check for other values than True/False--see documentation.
+question: |
+  How many children do you have?
+fields:
+  - Do you have any kids?: children.there_are_any
+    datatype: yesnoradio
+  - How many?: children.target_number
+    datatype: integer
+    show if: children.there_are_any
+---
+comment: |
+  The function ordinal converts a list's index (which starts at 0) into
+  the number word, e.g., "First, Second"
+
+  In the example below, the gender might be asked out of order if it weren't on the
+  same screen as the question defining the name. See documentation on "complete_attribute"
+  to solve this problem.
+question: |
+  What is the ${ordinal(i)} child's name
+fields:
+  - First: children[i].name.first
+  - Middle: children[i].name.middle
+    required: False
+  - Last: children[i].name.last
+  - Gender: children[i].gender
+    choices:
+      - Male
+      - Female
+      - Nonbinary
+      - Transgender
+      - Prefer not to say
+---
+comment: |
+  A for loop iterates through a list, assigning each item to a temporary variable (child)
+  * formats a bulleted list. If you want to indent a second level, use 4 spaces (two tabs in the online editor)
+mandatory: True
+question: |
+  Children
+subquestion: |
+  % if children.number() > 0:
+  ${children}
+  % else:
+  You have no children
+  % endif
+  
+  % for child in children:
+  * ${child}
+      * ${child.gender}
+  % endfor
