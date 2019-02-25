@@ -1,0 +1,150 @@
+---
+comment: |
+  This annotated Docassemble interview should be a useful skeleton to build a simple chatbot with multiple
+  endpoints. 
+
+  It demonstrates using checkboxes, conditional logic, and controlling endpoints.
+---
+metadata:
+  title: |
+    Docassemble Chatbot
+---
+comment: |
+  It's a good idea, but not required, to control the order of questions in your interview
+  with a single mandatory code block like this one.
+
+  Just list the variables that you want Docassemble to find, in order. If a screen defines more than
+  one variable you only need to list one variable from that screen.
+  See: https://docassemble.org/docs/logic.html#order
+
+  You can also include Python code here but usually should only use "if" statements that control interview flow.
+  See: https://github.com/GBLS/docassemble-workinggroup/blob/master/Skillshares/2.%20adding%20in%20logic/basic_logic.md
+mandatory: True
+code: |
+  # Everything after a # symbol in a code block is a comment
+  intro_screen
+  how_hungry
+  omnivore_status 
+  
+  # Below we choose one of three possible endpoints
+  if not eats_gluten:
+      sorry_no_gluten_free
+  if omnivore_status == 'meat eater': 
+    favorite_meats
+    meatist
+  elif omnivore_status == 'vegetarian':
+    favorite_vegetables
+    vegetarian
+---
+decoration: pizza-slice
+question: |
+  Pizza chooser
+subquestion: |
+  This interview will help you pick the perfect pizza. Click continue when
+  you're ready to start.
+field: intro_screen
+comment: |
+  A screen that just shows information to the user will set a variable to True when you click the continue button.
+  The default icon library is the font-awesome library. You can find pictures to decorate your question here:
+  https://fontawesome.com/icons?d=gallery&m=free
+---
+question: |
+  Do you have any dietary restrictions?
+fields:
+  - Are you a vegetarian or do you eat meat?: omnivore_status
+    input type: radio
+    choices:
+      - I eat meat: meat eater
+      - I am a vegetarian: vegetarian
+  - Do you eat dairy?: eats_dairy
+    datatype: yesnoradio
+  - Do you eat gluten?: eats_gluten
+    datatype: yesnoradio
+---
+decoration: drumstick-bite
+question: |
+  What kinds of meat do you like?
+fields:
+  - no label: favorite_meats
+    datatype: checkboxes
+    choices:
+      - Sausage
+      - Pepperoni
+      - Chicken
+      - Bacon
+      - Ham
+---
+question: |
+  How hungry are you?
+fields:
+  - On a scale of 1 to 10, how hungry are you?: how_hungry
+    datatype: range
+    min: 1
+    max: 10 
+---
+code: |
+  if how_hungry < 3:
+    pizza_size = "small" # You can define a variable in a code block as well as a question block
+  elif how_hungry < 7:
+    pizza_size = "medium"
+  else:
+    pizza_size = "large"
+---
+decoration: carrot
+question: |
+  What kinds of vegetables do you like?
+fields:
+  - no label: favorite_vegetables
+    datatype: checkboxes
+    choices:
+      - Olives
+      - Mushrooms
+      - Kale
+      - Potatoes
+      - Arugula
+---
+question: |
+  Do you like pineapple?
+yesno: likes_pineapple
+comment: |
+  This style of question is used to set only one variable at a time. You can usually use the fields statement instead.
+  See: https://docassemble.org/docs/questions.html#tocAnchor-1-5-1
+---
+comment: |
+  Endpoints should have the "event" specifier.
+event: sorry_no_gluten_free
+question: |
+  Sorry, we don't have any gluten free options :(
+---
+event: meatist
+decoration: pizza-slice
+question: |
+  Here is your recommended pizza
+subquestion: |
+  We suggest a ${pizza_size} pizza
+  % if eats_dairy:
+  with cheese
+  % else:
+  without cheese
+  % endif
+  and with the following toppings: ${favorite_meats.true_values()}
+  
+  ${"Don't forget the pineapple!" if likes_pineapple else "Stay away from the pineapple."}
+comment: |
+  This question demonstrates two kinds of if statements: a regular Mako if statement,
+  and one using an embedded Python single-line if statement.
+---
+event: vegetarian
+decoration: pizza-slice
+question: |
+  Here is your recommended pizza
+subquestion: |
+  We suggest a ${pizza_size} pizza
+  % if eats_dairy:
+  with cheese
+  % else:
+  without cheese
+  % endif
+  and with the following toppings: ${favorite_vegetables.true_values()}
+  
+  ${"Don't forget the pineapple!" if likes_pineapple else "Stay away from the pineapple."}

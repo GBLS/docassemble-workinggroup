@@ -1,0 +1,149 @@
+---
+comment: |
+  This annotated Docassemble interview shows how to use the text messaging / Twilio integration
+  offered by Docassemble.
+
+  For more information on using text messages, see https://docassemble.org/docs/functions.html#send_sms
+
+  It includes examples of using scheduled tasks and basic date math, as well as using the Individual object.
+---
+metadata:
+  title: |
+    Docassemble Court Date Calculator and Reminder
+---
+comment: |
+  The modules block allows you to include optional Docassemble features.
+  see: https://docassemble.org/docs/initial.html#modules
+modules:
+  - docassemble.base.util
+---
+comment: |
+  The objects block allows you to make use of object-oriented classes. This is a very powerful feature
+  but you can get by with just a little understanding of it.
+  See: https://docassemble.org/docs/objects.html and https://www.nonprofittechy.com/2018/09/12/object-oriented-programming-for-document-assembly-developers/
+objects:
+  - client: Individual # Creates a new variable named client, which is an instance of an Individual object
+---
+comment: |
+  It's a good idea, but not required, to control the order of questions in your interview
+  with a single mandatory code block like this one.
+
+  Just list the variables that you want Docassemble to find, in order. If a screen defines more than
+  one variable you only need to list one variable from that screen.
+  See: https://docassemble.org/docs/logic.html#order
+
+  You can also include Python code here but usually should only use "if" statements that control interview flow.
+  See: https://github.com/GBLS/docassemble-workinggroup/blob/master/Skillshares/2.%20adding%20in%20logic/basic_logic.md
+mandatory: True
+scan for variables: False
+code: |
+  # First, we tell Docassemble that this interview is allowed to run in the background
+  allow_cron = True
+  # We have to turn multi-user on to make use of scheduled tasks
+  multi_user = True 
+
+  intro_screen
+  client.name.first
+  client.phone_number
+  answer_date
+  if not case_is_on_time:
+    warn_late_answer
+  send_all_done_text
+  ending_screen
+---
+decoration: landmark
+question: |
+  Court Date Calculator
+subquestion: |
+  This interview will help you understand when your eviction case is scheduled.
+  It can send you a reminder the day before court.
+field: intro_screen
+---
+question: |
+  What is your name?
+fields:
+  - First name: client.name.first
+  - Middle name: client.name.middle
+    required: False
+  - Last name: client.name.last
+comment: |
+  Notice that objects include sub-variables (attributes). You access them with "dot" notation. client.name is itself an object
+---
+decoration: calendar-day
+question: |
+  When is your court date?
+subquestion: |
+  Take a look at your Summary Process Summons and Complaint.
+  It includes two dates: an Answer date, and a Court date.
+fields:
+  - What is the Answer date?: answer_date
+    datatype: date
+  - What is the Court date?: original_court_date
+    datatype: date
+---
+decoration: calendar-times
+question: |
+  You missed the deadline
+subquestion: |
+  Because ${answer_date} already happened, it's too late to postpone your court date.
+  % if today() < original_court_date:
+  You should go to court on the original day, ${original_court_date}. We'll still send you a reminder.
+  % endif
+field: warn_late_answer
+---
+code: |
+  case_is_on_time = today() <= original_court_date 
+---
+code: |
+  if case_is_on_time:
+    new_court_date = original_court_date.plus(days=14)
+  else:
+    new_court_date = original_court_date
+---
+question: |
+  What is your phone number?
+subquestion: |
+  If you give us your phone number below, we will send you a reminder the day before court.
+fields:
+  - Phone number: client.phone_number
+---
+code: |
+  # using the task_not_yet_performed function helps us make sure we don't send a text twice
+  if task_not_yet_performed('send all done'):
+    send_sms(to=client, template=send_all_done_text_template, task="send all done")
+  
+  # A common way to mark the end of a code block is to set a dummy variable to True
+  send_all_done_text = True
+---
+template: send_all_done_text_template
+subject: |
+  Court date reminder
+content: |
+  Hi ${client}, this is Docassemble. We'll send you a reminder text
+  on ${new_court_date}. 
+---
+comment: |
+  cron_daily is a special event that will run once a day even if the user isn't logged in. It comes from the Unix cron utility
+  which runs scheduled tasks. Scheduled tasks can only run on interviews that aren't encrypted.
+  See: https://docassemble.org/docs/background.html#scheduled
+event: cron_daily
+code: |
+  # Date comparison includes time, so we use a fuzzy comparison.
+  if task_not_yet_performed("scheduled text") and today() < new_court_date.plus(days=1) and today() > new_court_date.plus(days=-1):
+    # Individual objects are pretty handy. send_sms knows to check the .phone_number attribute to send a text message
+    # We could have also just specified the phone number directly
+    send_sms(to=client,template=scheduled_text_template, event="scheduled text")
+---
+template: scheduled_text_template
+subject: |
+  Court date reminder
+content: |
+  Hi ${client}, this is Docassemble. Don't forget to go to court on ${new_court_date}!
+---
+event: ending_screen
+question: |
+  Thanks for using the court-date calculator, ${client}!
+subquestion: |
+  % if new_court_date > today():
+  We will send you a text reminder to go to court on ${new_court_date}
+  % endif
