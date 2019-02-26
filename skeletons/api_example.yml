@@ -1,0 +1,141 @@
+---
+comment: |
+  This annotated Docassemble interview shows how to use an API call to
+  pull-in external data into your interview. The example uses the Recipe Puppy
+  API to match ingredients to recipes.
+  
+  For simplicity, the example has a pre-canned list of ingredients.
+  As an exercise, you might want to extend this to let you gather a list of 
+  ingredients.
+  See: https://docassemble.org/docs/groups.html 
+  This is an advanced topic but very powerful.
+  
+  Finally we demonstrate one way to lay out a list of results in a formatted table.
+  
+  For more interesting APIs to play with, check out https://github.com/toddmotto/public-apis
+---
+metadata:
+  title: |
+   Recipe Finder
+---
+comment: |
+  The imports block lets you directly use Python modules. The requests module
+  is used to make external API calls. Most APIs return "json" data. The json
+  module lets you work with json data easily.
+  
+  See: https://www.json.org/ and http://docs.python-requests.org/en/master/
+imports:
+  - requests
+  - json
+---
+comment: |
+  It's a good idea, but not required, to control the order of questions in your interview
+  with a single mandatory code block like this one.
+
+  Just list the variables that you want Docassemble to find, in order. If a screen defines more than
+  one variable you only need to list one variable from that screen.
+  See: https://docassemble.org/docs/logic.html#order
+
+  You can also include Python code here but usually should only use "if" statements that control interview flow.
+  See: https://github.com/GBLS/docassemble-workinggroup/blob/master/Skillshares/2.%20adding%20in%20logic/basic_logic.md
+mandatory: True
+code: |
+  intro_screen
+  the_end
+---
+decoration: utensils
+question: |
+  Recipe Finder
+subquestion: |
+  This interview will help you find a recipe that matches the ingredients you have
+  on hand.
+field: intro_screen
+---
+question: |
+  What ingredients do you have?
+fields:
+  - Ingredients: fridge_contents
+    datatype: checkboxes
+    choices:
+      - onions
+      - potatoes
+      - rice
+      - noodles
+      - flour
+      - soy sauce      
+      - eggs
+      - beef
+      - chicken
+      - greens
+      - bread crumbs
+---
+code: |
+  # When you type a URL into a browser, you are actually making a GET query
+  # behind the scenes. Using an API is often just as easy as visiting
+  # a special URL. "parameters" to the URL follow a question mark "?"
+  # and additional parameters are separated by an "&"
+  
+  # See http://www.recipepuppy.com/about/api/
+  # This is the base URL of our API request
+  url = "http://www.recipepuppy.com/api/"
+
+  # the recipe puppy API takes a list of ingredients separated by commas
+  # See https://docassemble.org/docs/functions.html#comma_list which takes
+  # our checkboxes variable and turns it into a properly formatted list
+  # Below we say that there is a single parameter named "i" that will get a list
+  # of ingredients. Many APIs have multiple parameters. You may also
+  # need an API key (password).
+  params = {'i': comma_list(fridge_contents.true_values().elements) }
+  
+  # the params keyword tells requests that we are adding a parameter to the base API url
+  r = requests.get(url, params=params) 
+  
+  # r.url will hold the final URL we pass to the API if we want to review it later
+  
+  # json.dumps() takes a json response and turns it into regular text
+  debug_results = json.dumps(r.text) 
+  
+  # json.loads turns JSON API results into a Python dictionary that we can use
+  # as a normal variable
+  jsondata = json.loads(r.text) 
+  
+  # If you examine debug_results, you'll see this particular API response is 
+  # a dictionary. There are a few fields we can ignore, and then 
+  # the actual recipe results are in a field called 'results'
+  # .get('key') lets us retrieve the dictionary key named 'results' in jsondata
+  results = jsondata.get('results')
+---
+table: results_table
+rows: results
+columns: 
+  - Thumbnail: |
+      "![thumbnail](" + row_item.get('thumbnail') + ")"
+  - Recipe: |
+      '[' + row_item.get('title') + '](' + row_item.get('href') + ')'
+  - Ingredients: |
+      row_item.get('ingredients')
+comment: |
+  See: https://docassemble.org/docs/template.html#table
+  There's a lot going on in this table. What comes after the | needs
+  to be formatted like a code block. So if we want to use a variable, we just name it.
+  If we want to add formatting, we need to quote any text. You can combine two
+  pieces of text with the "+" operator which lets us build more complex expressions.
+  
+  We're also using the special syntax for a markdown URL and a markdown image
+  See: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
+---
+event: the_end
+question: |
+  Here's what you could make
+subquestion: |  
+  ${results_table}
+help: |
+
+  Our final query was ${r.url}
+  
+  Try putting this URL in a web browser.
+  
+  If you want to understand the structure of the API results, you can
+  copy and paste the text below into [JSON Editor Online](http://jsoneditoronline.org/)
+
+  ${debug_results}

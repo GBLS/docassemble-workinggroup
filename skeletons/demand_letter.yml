@@ -1,0 +1,219 @@
+---
+comment: |
+  This annotated Docassemble interview shows how to assemble a document.
+  
+  There are four ways to create a document built-in to Docassemble:
+  1. Create a document "from scratch" using Docassemble's formatting commands
+  2. Fill in a PDF template using form fields added with Adobe Acrobat
+  3. Fill in a Word Docx template using mail-merge fields (uncommon)
+  4. Fill in a Word Docx template using Docassemble's special formatting tags.
+
+  For simplicity this interview will only demonstrate the 1st method. There is
+  slightly different syntax for the other options, but they offer you the ability
+  to automate highly formatted documents in comparison to the demonstrated
+  feature.
+
+  This interview includes a brief example of the use of the Individual and Address 
+  objects and Google Maps geocoding. It also incidentally introduces signatures,
+  the currency() function, and the show if question modifier.
+---
+metadata:
+  title: |
+   Consumer Protection Demand Letter
+---
+comment: |
+  The modules block allows you to include optional Docassemble features.
+  see: https://docassemble.org/docs/initial.html#modules
+modules:
+  - docassemble.base.util
+---
+comment: |
+  The objects block allows you to make use of object-oriented classes. This is a very powerful feature
+  but you can get by with just a little understanding of it.
+  See: https://docassemble.org/docs/objects.html and https://www.nonprofittechy.com/2018/09/12/object-oriented-programming-for-document-assembly-developers/
+objects:
+  - client: Individual # Creates a new variable named client, which is an instance of an Individual object
+  - opposing_party: Person # A Person represents a legal person, which might be a company rather than an individual
+---
+comment: |
+  It's a good idea, but not required, to control the order of questions in your interview
+  with a single mandatory code block like this one.
+
+  Just list the variables that you want Docassemble to find, in order. If a screen defines more than
+  one variable you only need to list one variable from that screen.
+  See: https://docassemble.org/docs/logic.html#order
+
+  You can also include Python code here but usually should only use "if" statements that control interview flow.
+  See: https://github.com/GBLS/docassemble-workinggroup/blob/master/Skillshares/2.%20adding%20in%20logic/basic_logic.md
+mandatory: True
+code: |
+  intro_screen
+  client.name.first
+  opposing_party.name.text
+  op_business
+  if not op_doing_business:
+    not_doing_business
+  client.address.address
+  client.address.geolocate()
+  right_address
+  download_screen
+---
+decoration: user-shield
+question: |
+  Consumer Protection Demand Letter
+subquestion: |
+  This interview will help you generate a consumer protection demand
+  letter, pursuant to G.L. c. 93A.
+  
+  This is an example only, and leaves out many key protections that a real
+  interview would use.
+field: intro_screen
+---
+question: |
+  What is your name?
+fields:
+  - First name: client.name.first
+  - Middle name: client.name.middle
+    required: False
+  - Last name: client.name.last
+---
+question: |
+  Who do you have a consumer complaint about?
+fields:
+  - Name: opposing_party.name.text
+---
+question: |
+  What is your address?
+fields:
+  - Address: client.address.address
+    address autocomplete: True
+  - Unit: client.address.unit
+    required: False
+  - City: client.address.city
+  - State: client.address.state
+    default: "MA"
+    code: |
+      states_list() # See https://docassemble.org/docs/functions.html#states_list
+  - Zip: client.address.zip      
+---
+question: |
+  What is ${opposing_party}'s address?
+fields:
+  - Address: opposing_party.address.address
+    address autocomplete: True
+  - Unit: opposing_party.address.unit
+    required: False
+  - City: opposing_party.address.city
+  - State: opposing_party.address.state
+    default: "MA"
+    code: |
+      states_list() # See https://docassemble.org/docs/functions.html#states_list
+  - Zip: opposing_party.address.zip   
+---
+question: |
+  Your addresses
+subquestion: |
+  Here's a map showing both you and ${opposing_party}.
+  
+  ${ map_of(client, opposing_party)}
+field: right_address
+comment: |
+  The map_of() function can display a Google Map of one or more addresses or
+  Individuals that have an address attached to them. See https://docassemble.org/docs/functions.html#map_of
+---
+question: |
+  Is ${opposing_party} "in business"?
+subquestion: |
+  Check any true statements below.
+fields:
+  - ${opposing_party} is someone who offers services or sells goods for money.: op_business
+    datatype: yesno
+  - ${opposing_party} is a landlord.: op_landlord
+    datatype: yesno
+  - ${opposing_party} is a government agency or a housing authority.: op_ha
+    datatype: yesno
+    show if: op_landlord
+  - ${opposing_party} lives in my building.: op_lives_with_me
+    datatype: yesno
+    show if: op_landlord
+  - My building has 4 or fewer units.: small_building
+    datatype: yesno
+    show if: op_lives_with_me
+comment: |
+  You can add follow-up questions inside a single screen with the show if
+  question modifier.  https://docassemble.org/docs/fields.html#show%20if
+  Be careful when using this, as your user can get caught in a loop
+  if a field that the interview needs is hidden behind a show if.
+---
+code: |
+  # Here we evaluate the question above to decide if c. 93A applies.
+  # It's OK to break up a Python statement into multiple lines if its enclosed 
+  # by parentheses as shown below
+  op_doing_business = (op_business and not op_landlord) or (
+    (op_landlord and not op_ha and not op_lives_with_me) or (
+      op_landlord and not op_ha and op_lives_with_me and not small_building))
+---
+decoration: hand-paper
+event: not_doing_business
+question: |
+  This is the wrong interview for you.
+subquestion: |
+  It doesn't look like you had a business relationship with ${opposing_party}.
+---
+question: |
+  What is the wrongful act that ${opposing_party} committed?
+fields: 
+  - On (select date): act_date
+    datatype: date
+  - ${opposing_party} did this: act_description
+    datatype: area
+  - Because of what ${opposing_party} did, I suffered this harm: act_harm
+    datatype: area
+  - A fair amount of money to compensate me is: act_cost
+    datatype: currency
+---
+question: |
+  Sign your name
+signature: client.signature
+under: |
+  ${client}
+---
+decoration: file-download
+event: download_screen
+question: |
+  Your document is ready.
+attachment:
+  - name: 93A Demand letter
+    filename: demand_letter
+    content: |
+      # 93A Demand Letter
+      ${client.address_block()}
+      
+      ${today()}
+      
+      ${opposing_party.address_block()}
+      
+      Dear ${opposing_party}:
+      
+      Under the provisions of Massachusetts General Laws, Chapter 93A, Section 9, I hereby make written
+      demand for relief as outlined in that statute.
+      
+      On or about ${act_date}, the following unfair or deceptive trade practice occurred:
+      
+      ${act_description}
+      
+      As a result of this unfair or deceptive act or practice, I suffered injury or loss of money as follows:
+      
+      ${act_harm}
+      
+      Therefore, I hereby demand compensation in the amount of ${currency(act_cost)}.
+      
+      Chapter 93A gives you the opportunity to make a good-faith response to this letter within thirty (30) days.
+      Your failure to do so-could subject you to triple damages, attorney's fees and costs if I decide to institute
+      legal action.
+      
+      Sincerely,
+      
+      ${client.signature}
+      
+      ${client}
