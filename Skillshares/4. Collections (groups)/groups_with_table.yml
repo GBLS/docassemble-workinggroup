@@ -1,0 +1,40 @@
+---
+modules:
+  - docassemble.base.util
+---
+objects:
+  - children: DAList.using(object_type=Individual, there_are_any=True, there_is_another=False)
+---
+mandatory: True
+code: |
+  your_family
+---
+question: |
+  Who is the ${ordinal(i)} child?
+fields: 
+  - First name: children[i].name.first
+  - Last name: children[i].name.last
+  - Birthdate: children[i].birthdate
+    datatype: date
+---
+table: children.table
+rows: children
+columns: 
+  - Name: |
+      row_item # This is the child. Referring to children[i] would spit out its name
+  - Birthdate: |
+      row_item.birthdate
+  - Age today: |
+      row_item.age_in_years()
+edit: 
+  - name.first
+---
+question: |
+  Your family
+subquestion: |
+
+  ${children.table}
+  
+  ${children.add_action()}
+  
+field: your_family  
