@@ -1,0 +1,38 @@
+---
+include:
+	- docassemble.income:financial_statement.yml
+---
+code: |
+	grand_total = (client.incomes.total(period_to_use=12) + spouse.incomes.total(period_to_use=12) + 
+    household.incomes.total(period_to_use=12) + client.jobs.net_total(period_to_use=12) +	spouse.jobs.net_total(period_to_use=12) + household.jobs.net_total(period_to_use=12) +
+	  assets.total(period_to_use=12) )
+	
+	assets_total = real_estate.market_value_total() + assets.total() + vehicles.total()
+	# monthly_expenses = expenses.total()
+---
+code: |
+	income_limits = {1: 388, 2: 491, 3: 593, 4: 691, 5:792, 6:896, 7:997, 8: 1097, 9: 1192}
+	
+	asset_limit = 5000
+
+	household_size_tmp = 1
+	if has_spouse:
+		 household_size_tmp += 1
+	if household.there_are_any:
+		 household_size_tmp += household.number()
+	
+	household_size = household_size_tmp
+---
+mandatory: True
+question: |
+	Your total family income is ${currency(grand_total)} / month.
+	
+	% if grand_total < income_limits[household_size]:
+	Your income qualifies.
+  % else:
+  Your income is too high.
+	% endif
+
+	%if assets_total < asset_limit:
+	Your assets qualify you.
+	% endif
