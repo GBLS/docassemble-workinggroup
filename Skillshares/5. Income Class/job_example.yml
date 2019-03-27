@@ -1,0 +1,35 @@
+---
+modules:
+  - docassemble.income.income
+---
+objects:
+  - jobs: JobList.using(complete_attribute='period')
+---
+question: |
+  Do you have a job?
+yesno: jobs.there_are_any
+---
+question: |
+  What is your job?
+fields:
+  - Employer: jobs[i].employer
+  - How often are you paid?: jobs[i].period
+    datatype: integer
+    code: period_list()
+  - How much are you paid: jobs[i].value
+    datatype: currency
+---
+question: |
+  Do you have another job?
+yesno: jobs.there_is_another
+
+---
+mandatory: True
+question: |
+  You have ${jobs.number()} jobs.
+subquestion: |
+  % for job in jobs:
+  * ${job.employer}: earns ${currency(job.amount(period_to_use=12))} / month.
+  % endfor
+  
+  The total income is ${currency(jobs.total(period_to_use=12))} / month.
