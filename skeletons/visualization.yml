@@ -1,0 +1,56 @@
+---
+comment: |
+  This interview demonstrates how Docassemble can leverage Python's rich library
+  of visualization and data functions. Here we use it to create a simple area 
+  chart from a CSV file, but the basic structure would work for any more complex
+  visualizations, using data from a source of your choice (such as an API, or 
+  gathered in a Docassemble list).
+---
+imports:
+  - pandas 
+---
+objects:
+  - visualization_image: DAFile # See https://docassemble.org/docs/objects.html#DAFile
+---
+mandatory: True
+code: |
+  ############
+  # The example below is mostly not Docassemble code, but standard Python code.
+  # It demonstrates how you can leverage existing Python libraries to do complex
+  # tasks such as data visualization.
+  # See: http://queirozf.com/entries/pandas-dataframe-plot-examples-with-matplotlib-pyplot#line-plot-with-multiple-columns
+  ###########
+  
+  import matplotlib.pyplot as plt
+  plt.close() # Remove any existing plots from memory
+  
+  # Get a Docassemble-compatible file path for our image
+  visualization_image.initialize(filename="plot.png")  
+  
+  # Load the CSV file into a pandas "DataFrame" object.
+  # See: https://pandas.pydata.org/pandas-docs/stable/getting_started/dsintro.html
+  
+  # The CSV file comes from Google Trends
+  # We could use a local file saved in the data/sources folder...
+  # path = path_and_mimetype('data/sources/vampires_vs_zombies.csv')[0]
+  
+  # Or use a CSV file "published to the web" from Google Sheets as a CSV
+  path = path_and_mimetype('https://docs.google.com/spreadsheets/d/e/2PACX-1vSbfGU1lxEJ1NeaJf-1XWmjNK2DTHqse-5nLavPAYLvMaLvyinllnrCFyreTVOy-5QIh0Lp__grMiHv/pub?gid=341301610&single=true&output=csv')[0]
+  
+  df = pandas.read_csv(path)
+  
+  ax=df.plot(kind='area',x='Month',y='Zombies')
+  df.plot(kind='area',x='Month',y='Vampires',ax=ax) # share the same axes
+  plt.legend()
+  
+  # Use the file path we created above to store the completed figure
+  plt.savefig(visualization_image.path())
+
+---
+comment: |
+  We specify width so we can show a larger image than the Docassemble default.
+mandatory: True
+question: |
+  Google Trends: Popularity of Zombies vs Vampires Over Time
+subquestion: |
+  ${ visualization_image.show(width=450) }

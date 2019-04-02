@@ -1,0 +1,72 @@
+---
+metadata:
+  title: Mapping Example
+  authors:
+    name: Quinten Steenhuis
+    organization: Greater Boston Legal Services
+---
+comment: |
+  This interview demonstrates Docassemble's Google Maps integration and importing
+  a custom module.
+  
+  In this example, the module implements Social Security Administration's office locator
+  API and creates a simple Docassemble object that represents a list of "nearest"
+  offices.
+  
+  By default, it will iteratively load a minimum of 3 offices. Try putting an address in
+  Nome, Alaska to see how big the map can get.
+  
+  It also demonstrates the Address object and the Person object, as well as using a
+  for loop to display the contents of a list.
+---
+modules:
+  - docassemble.ssa.ssa
+---
+objects:
+  - officelist: FieldOfficeList
+  - my_address: Address
+---
+comment: |
+  This block controls question order.
+mandatory: True
+code: |
+  my_address.address
+  display_offices
+---
+comment: |
+  This block fills in the "officelist" object with the results of the SSA API
+  lookup, using the custom docassemble.ssa module.
+code: |
+  officelist.load_offices(my_address)
+  officelist.gathered = True
+---
+question: |
+  Your address
+fields:
+  - Address: my_address.address
+    address autocomplete: True
+  - City: my_address.city
+  - State: my_address.state
+  - Zip: my_address.zip
+---
+comment: |
+  The map_of function uses Google Maps to map a list of addresses (or Persons/Individuals
+  with addresses).
+  
+  See: https://docassemble.org/docs/functions.html#map_of
+  
+  officelist is a special object type. To get map_of to understand it, we need
+  to tell it to treat it like a regular list of Persons by casting it to list()
+event: display_offices
+question: |
+  Nearest Offices
+subquestion: |
+  
+  The offices closest to ${my_address.on_one_line()} are shown below.
+  
+  ${map_of(list(officelist))}
+  
+  % for office in officelist:
+  * ${office}
+      * ${office.address.on_one_line()}
+  % endfor
